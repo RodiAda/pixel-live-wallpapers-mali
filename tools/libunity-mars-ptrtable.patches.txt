@@ -1,0 +1,13 @@
+0xc172c8|lsr x8, x1, #32|lsr x8, x1, #35
+0xc17330|ubfx x9, x1, #25, #7|ubfx x9, x1, #25, #10
+0xc173ac|lsr x9, x1, #32|lsr x9, x1, #35
+0xc1746c|mov w0, #0x81|mov w0, #0x401
+0xc17488|str xzr, [x0, #0x400]|str xzr, [x0, #0x2000]
+0xc17490|ubfx x22, x20, #25, #7|ubfx x22, x20, #25, #10
+0xc1759c|ldr w9, [x8, #0x400]|ldr w9, [x8, #0x2000]
+0xc175a4|str w9, [x8, #0x400]|str w9, [x8, #0x2000]
+0xc175ec|lsr x9, x1, #32|lsr x9, x1, #35
+0xc176a8|ubfx x22, x20, #25, #7|ubfx x22, x20, #25, #10
+0xc177a4|ldr w8, [x0, #0x400]|ldr w8, [x0, #0x2000]
+0xc177ac|str w8, [x0, #0x400]|str w8, [x0, #0x2000]
+0xc177b8|mov w1, #0x408|mov w1, #0x2008
