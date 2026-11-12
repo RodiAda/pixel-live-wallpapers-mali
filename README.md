@@ -122,8 +122,18 @@ Per package:
 | Snow Mountain | Unity 2022.3.33f1 | `label=四姑娘山=>Снежная гора` (optional) |
 | Mars (Xiaomi) | Unity 2022.3.33f1 | `pkg=com.miui.miwallpaper.mars=>com.miui.miwallpaper.marsx` plus the arsc package name, to install next to the Ouxyl port. One wallpaper, 5 landing sites: `adb shell am broadcast -a miui.miwallpaper.action.LAND_CHANGE --ei position N` (0–4) |
 | Saturn | Unity 2022.3.33f1 | `labelref=0x7f0f0032=>0x7f0f0033`: the service label is the bare word "saturn", point it at the title string |
-| Earth | Google Filament | — |
-| Moon | Google Filament | before `buildmiui.py`, nop the two `Settings.Global.putLong/putInt` calls in `MoonPhaseUpdateHelper.notifyAllMoonPhaseChangeChecked` (classes.dex 0x3e3e30, 0x3e3e42): writing global settings needs `WRITE_SECURE_SETTINGS` and crashes the service; the in-process callbacks still deliver the phase |
+| Earth | Google Filament | the Filament wrapper (`BaseEarthSuperWallpaper`) is separate from `SuperWallpaper`: `tools/filamentsuper.py` makes `filamentPause` Pixel-like and sets 30 fps; `tools/pixel-preview-fix` adds a service subclass and the manifest service name is switched to it (see below) |
+| Moon | Google Filament | before `buildmiui.py`, nop the two `Settings.Global.putLong/putInt` calls in `MoonPhaseUpdateHelper.notifyAllMoonPhaseChangeChecked` (classes.dex 0x3e3e30, 0x3e3e42): writing global settings needs `WRITE_SECURE_SETTINGS` and crashes the service; the in-process callbacks still deliver the phase. Then the same Filament fixes as Earth |
+
+### Filament wallpapers and the Pixel picker
+
+Earth and Moon create a new renderer (`*MrePlayer`) in every engine's `onCreate` and store it, with `mIsPreview`,
+in fields of the service. On MIUI previews run in a separate preview service and process. Pixel's picker previews
+the same service the active wallpaper runs in, so opening the preview replaces the active wallpaper's renderer and
+preview flag; afterwards the wallpaper is a frozen picture that ignores screen and unlock events.
+`Pixel{Earth,Moon}SuperWallpaper` (Java, `tools/pixel-preview-fix`) extends the original service and, when a real
+engine already owns a renderer, returns an engine that only draws the thumbnail. The wallpaper must be set again
+after installing, because the service class name changes.
 
 ### Mars, Ouxyl port (Unity 2019.3.15f1)
 
@@ -173,6 +183,7 @@ Keep your key: updating a package signed with a different key means uninstalling
 | `axmlbool.py` | flip a boolean attribute in binary XML |
 | `findssbo.py`, `patchssbo.py` | find and strip vertex-stage storage buffers in Unity shaders (UnityPy, lz4) |
 | `miuisuper.py`, `buildmiui.py` | Xiaomi super wallpaper wrapper fixes and full build |
+| `filamentsuper.py`, `pixel-preview-fix/` | Filament wrapper pause/fps fix and preview isolation for Earth and Moon |
 | `rezip.py` | rebuild an APK with replaced entries |
 | `sweep.sh` | open every live wallpaper preview over adb and log crashes (`ANDROID_SERIAL` required) |
 
